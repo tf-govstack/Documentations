@@ -1,0 +1,69 @@
+version: '3'
+services:
+  postgres:
+    image: bitnami/postgresql:11.14.0-debian-10-r28 
+    container_name: postgres 
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Mosip@123
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./sql-scripts:/docker-entrypoint-initdb.d
+  softhsm:
+    image: mosipid/softhsm:v2
+    container_name: softhsm-mock-identity-system
+    environment:
+     - SOFTHSM2_CONF=/softhsm/softhsm.conf
+     - PKCS11_DAEMON_SOCKET=tcp://0.0.0.0:5666
+     - SECURITY_OFFICER_PIN=e4c954e96ae5b625ca800b78f9fee5e2cc453423
+    volumes:
+      - softhsm-keys:/softhsm/tokens/
+      - SOFTHSM2_CONF:/softhsm/
+    ports:
+      - "5666:5666"
+  config-server:
+    image: technogovstack/config-server:1.1.2 # Use the official Spring Cloud Config Server image
+    ports:
+      - "51000:51000" # Map host port to container port
+    environment:
+      - SPRING_CLOUD_CONFIG_URI=http://localhost:51000
+      - SPRING_PROFILES_ACTIVE=native # Use native profile for local development
+      - spring.cloud.config.label=local-mock-id
+      - spring.application.name=mock-identity-system
+    volumes:
+      - ./mosip-config:/config # Mount your configuration repository to the container
+  artifactory:
+    image: tfgovstackdev/artifactory-server:tf-develop
+    container_name: artifactory
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/var/opt/jfrog/artifactory
+    environment:
+      - artifactory_url_env=http://localhost:8080
+      - ARTIFACTORY_USER=mosip
+      - ARTIFACTORY_PASSWORD=mosip@123
+  mockidentitysystem:
+    image: tfgovstackdev/mock-identity-system:local-esignet-mock
+    environment:
+      - artifactory_url_env=http://10.2.1.14:8080
+      - PKCS11_PROXY_SOCKET=tcp://10.2.1.14:5666
+      - SOFTHSM2_CONF=/softhsm/softhsm.conf
+    container_name: mockidentitysystem
+    user: root
+    ports:
+      - 8082:8082
+  esignet:
+    image: tfgovstackdev/esignet:local-esignet
+    environment:
+      - artifactory_url_env=http://10.2.1.14:8080
+      - PKCS11_PROXY_SOCKET=tcp://10.2.1.14:5666
+      - SOFTHSM2_CONF=/softhsm/softhsm.conf
+      - esignet_wrapper_url_env=http://10.2.1.14:8080/artifactory/libs-release-local/esignet/esignet-wrapper.zip
+      - mosip.esignet.mock.authenticator.send-otp=http://10.2.1.14:8082/v1/mock-identity-system/send-otp
+    container_name: esignet
+    user: root
+    ports:
+     - 3333:3333
