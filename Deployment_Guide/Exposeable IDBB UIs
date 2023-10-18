@@ -8,6 +8,8 @@ Username : tfgovidbb
 Password : tfgovidbb@123
 
 PREREG-UI -> https://prereg.tfgovidbb.sandbox-playground.com/
+Resident Email Id : Any Email ID
+OTP : 111111
 
 PMP-UI -> https://pmp.tfgovidbb.sandbox-playground.com/
 User Details for pmp-ui
@@ -15,9 +17,15 @@ Username : tfgovidbb
 Password : tfgovidbb@123
 
 RESIDENT-UI -> https://resident.tfgovidbb.sandbox-playground.com/
+TO Login with e-Signet click on UIN Services -> LOG IN HERE -> More Ways to Login -> Login with OTP -> Enter the UIN provided below.
+UIN : 2198057307
+OTP : 111111
 
 ESIGNET-UI -> https://esignet.tfgovidbb.sandbox-playground.com/
 
 HEALTHSERVICES-UI -> https://healthservices.tfgovidbb.sandbox-playground.com/
+TO Login with e-Signet click on Sign in with e-Signet -> LOG IN HERE -> More Ways to Login -> Login with OTP -> Enter the UIN provided below.
+UIN : 2198057307
+OTP : 111111
 
 SMTP-UI -> https://smtp.tfgovidbb.sandbox-playground.com/
